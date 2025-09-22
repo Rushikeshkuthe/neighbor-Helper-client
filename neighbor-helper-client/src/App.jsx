@@ -28,7 +28,7 @@ function App() {
         <Route path="/userwallet" element={<UserWallet/>}/>
         <Route path="/setting" element={<Setting/>}/>
         <Route path="/message" element={<Message/>}/>
-        <Route path="/taskdetail" element={<TaskDetail/>}/>
+        <Route path="/taskdetail/:id" element={<TaskDetail/>}/>
         <Route path="/payment" element={<Payment/>}/>
       </Routes>
     </div>

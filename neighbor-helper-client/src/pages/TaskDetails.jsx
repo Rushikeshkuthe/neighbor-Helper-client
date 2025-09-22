@@ -1,19 +1,20 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../layout/MainLayout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { apiGET } from "../../utils/apiHelpers";
 
 const TaskDetail=()=>{
-    const [taskId,setTaskId]=useState()
-    const [task,setTask] = useState()
+
+    const {id} = useParams()
+
+
+    const [task,setTask] = useState(null)
 
     useEffect(()=>{
-        if(!taskId){
-                return
-        }
+      
         async function fetchTask() {
             try{
-                const response = await apiGET(`v1/task/getTaskById/${taskId}`)
+                const response = await apiGET(`v1/task/getTaskById/${id}`)
                 console.log("response",response.data.data)
                 if(response.status===200){
                     setTask(response.data.data)
@@ -25,7 +26,7 @@ const TaskDetail=()=>{
             }
         }
         fetchTask()
-    },[taskId])
+    },[id])
 
 return(
     <MainLayout>
@@ -33,20 +34,19 @@ return(
         <h1 class="text-3xl font-bold text-indigo-800 mb-5">Task Details</h1>
 
         <h1 class="text-2xl font-bold mb-2 text-gray-700">
-            {task.title}
+            {task?.title}
         </h1>
 
-        <p class="text-gray-600">Posted By : <span class="font-semibold">{task.owner.name}</span></p>
-        <p class="text-yellow-500">⭐ {task.owner.rating}</p>
+        <p class="text-gray-600">Posted By : <span class="font-semibold">{task?.username}</span></p>
 
         <div class="mb-4">
             <h2 class="text-lg font-semibold mb-1">Description</h2>
-            <p class="text-gray-600">{task.description}</p>
+            <p class="text-gray-600">{task?.description}</p>
         </div>
 
         <div class="mb-4">
             <h2 class="text-lg font-semibold mb-1">Address</h2>
-            <p class="text-gray-600">{task.address}</p>
+            <p class="text-gray-600">Abc Square Nagpur, 441904</p>
         </div>
 
         <div mb-4>
@@ -57,11 +57,13 @@ return(
         </div>
 
             <div class="flex mt-4 gap-2">
-                <button class="px-6 py-3 bg-green-600 rounded-lg hover:bg-green-700 font-semibold text-white" onClick={handleAccept}>
+                <button class="px-6 py-3 bg-green-600 rounded-lg hover:bg-green-700 font-semibold text-white" 
+                // onClick={handleAccept}
+                >
                 Accept Task
                 </button>
                  <button class="px-6 py-3 bg-purple-600 rounded-lg hover:bg-purple-700 font-semibold text-white"
-                 onClick={handleChat}
+                //  onClick={handleChat}
                  >
               Chat with Requester
                 </button>

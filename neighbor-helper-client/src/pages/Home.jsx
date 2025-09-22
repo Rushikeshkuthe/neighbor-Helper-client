@@ -4,15 +4,15 @@ import Navbar from '../component/Navbar'
 import TaskCard from '../component/TaskCard'
 import MainLayout from '../layout/MainLayout'
 import { apiGET } from '../../utils/apiHelpers'
+import { useNavigate } from 'react-router-dom'
 
 const Home = ()=>{
-
+    const navigate = useNavigate();
     const [task,setTask]=useState([])
 
     async function getAllTask(){
        try{
       const response = await apiGET(`v1/task/getallTask`)
-          console.log("response-->",response.data.data)
       if(response.data.status===200){
         setTask(response.data.data)
       }else{
@@ -27,15 +27,19 @@ const Home = ()=>{
 
     const formattedDate = (dateString) => {
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, "0");      // dd
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // mm
-  const year = date.getFullYear();                           // yyyy
+  const day = String(date.getDate()).padStart(2, "0");      
+  const month = String(date.getMonth() + 1).padStart(2, "0"); 
+  const year = date.getFullYear();                           
   return `${day}/${month}/${year}`;
 };
 
     useEffect(()=>{
       getAllTask()
     },[])
+
+    const handleAccept=(id)=>{
+      navigate(`/taskdetail/${id}`)
+    }
    
 
     return(
@@ -55,6 +59,7 @@ const Home = ()=>{
                     description={t.discription}
                     location=""
                     reward={t.reward}
+                    onAccept={()=>handleAccept(t._id)}
                    />
                   ))}
                    
