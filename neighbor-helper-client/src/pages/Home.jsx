@@ -56,7 +56,7 @@ const Home = ()=>{
                     <TaskCard
                    title={t.title}
                    date={formattedDate(t.createdAt)}
-                    description={t.discription}
+                    description={t?.description}
                     location={t.address}
                     reward={t.reward}
                     onAccept={()=>handleAccept(t._id)}

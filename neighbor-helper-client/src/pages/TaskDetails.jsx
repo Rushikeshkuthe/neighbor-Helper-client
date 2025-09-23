@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import MainLayout from "../layout/MainLayout";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiGET } from "../../utils/apiHelpers";
+import Leaf from "leaflet"
+import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 const TaskDetail=()=>{
 
@@ -28,6 +30,12 @@ const TaskDetail=()=>{
         fetchTask()
     },[id])
 
+    const customIcon = new Leaf.Icon({
+        iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+        iconSize:[25,41],
+        iconAnchor:[12,41]
+    })
+
 return(
     <MainLayout>
     <div class="p-6 bg-gray-300 rounded-3xl min-h-screen w-full">
@@ -53,11 +61,32 @@ return(
             <p class="text-gray-600 font-bold">₹{task?.reward}</p>
         </div>
 
-        <div mb-4>
+        <div >
             <h2 class="text-lg font-semibold mb-1">Location</h2>
-            <div class="w-full h-64 bg-gray-800 flex items-center justify-center rounded">
-                <span class="text-gray-400">[Map Intigration Here]</span>
+            {task?.location?.lat && task.location?.lng ? (
+                <MapContainer center={[task?.location?.lat,task?.location?.lng]}
+                zoom={13}
+                className="w-full h-64 rounded border"
+                >
+                    <TileLayer 
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy, <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                    />
+                     <Marker
+                     position={[task?.location?.lat,task?.location?.lng]}
+                     icon={customIcon}
+                     >
+                    <Popup>{task.address || "Task Location"}</Popup>
+                     </Marker>
+                </MapContainer>
+            ):(
+                     <div className="w-full h-64 bg-gray-800 flex items-center justify-center rounded">
+                <span className="text-gray-400">Map Not Available</span>
             </div>
+            )
+        }
+
+           
         </div>
 
             <div class="flex mt-4 gap-2">
