@@ -11,6 +11,7 @@ import Setting from "./pages/Settings"
 import Message from "./pages/Message"
 import TaskDetail from "./pages/TaskDetails"
 import Payment from "./pages/Payment"
+import PostedTask from "./pages/PostedTask"
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/message" element={<Message/>}/>
         <Route path="/taskdetail/:id" element={<TaskDetail/>}/>
         <Route path="/payment" element={<Payment/>}/>
+        <Route path="/postedTask" element={<PostedTask/>}/>
       </Routes>
     </div>
   </Router>

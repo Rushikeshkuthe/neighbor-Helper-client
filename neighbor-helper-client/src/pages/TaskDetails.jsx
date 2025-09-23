@@ -37,16 +37,20 @@ return(
             {task?.title}
         </h1>
 
-        <p class="text-gray-600">Posted By : <span class="font-semibold">{task?.username}</span></p>
+        <p class="text-gray-600 mb-1">Posted By : <span class="font-semibold">{task?.username}</span></p>
 
         <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-1">Description</h2>
+            <h2 class="text-lg font-semibold">Description</h2>
             <p class="text-gray-600">{task?.description}</p>
         </div>
 
         <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-1">Address</h2>
-            <p class="text-gray-600">Abc Square Nagpur, 441904</p>
+            <h2 class="text-lg font-semibold ">Address</h2>
+            <p class="text-gray-600">{task?.address}</p>
+        </div>
+         <div class="mb-4">
+            <h2 class="text-lg font-semibold ">Rewards</h2>
+            <p class="text-gray-600 font-bold">₹{task?.reward}</p>
         </div>
 
         <div mb-4>

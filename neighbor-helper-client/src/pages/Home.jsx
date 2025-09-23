@@ -57,7 +57,7 @@ const Home = ()=>{
                    title={t.title}
                    date={formattedDate(t.createdAt)}
                     description={t.discription}
-                    location=""
+                    location={t.address}
                     reward={t.reward}
                     onAccept={()=>handleAccept(t._id)}
                    />
