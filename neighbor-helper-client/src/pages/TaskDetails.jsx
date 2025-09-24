@@ -8,7 +8,7 @@ import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 const TaskDetail=()=>{
 
     const {id} = useParams()
-
+    const navigate=useNavigate()
 
     const [task,setTask] = useState(null)
 
@@ -17,7 +17,6 @@ const TaskDetail=()=>{
         async function fetchTask() {
             try{
                 const response = await apiGET(`v1/task/getTaskById/${id}`)
-                console.log("response",response.data.data)
                 if(response.status===200){
                     setTask(response.data.data)
                 }else{
@@ -35,6 +34,13 @@ const TaskDetail=()=>{
         iconSize:[25,41],
         iconAnchor:[12,41]
     })
+
+    const handleChat=()=>{
+        navigate('/message',{state:{
+            id:task?.userId,
+            name :task?.username,
+        }
+    })    }
 
 return(
     <MainLayout>
@@ -96,7 +102,7 @@ return(
                 Accept Task
                 </button>
                  <button class="px-6 py-3 bg-purple-600 rounded-lg hover:bg-purple-700 font-semibold text-white"
-                //  onClick={handleChat}
+                 onClick={handleChat}
                  >
               Chat with Requester
                 </button>
