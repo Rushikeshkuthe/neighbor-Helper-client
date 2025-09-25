@@ -12,6 +12,8 @@ import { useNavigate } from 'react-router-dom'
 
 const Sidebar=()=>{
 
+  const userdata = JSON.parse(localStorage.getItem('user'))
+const userName = userdata?.username || "User"
     const navigate = useNavigate();
 
  const handleLogout =(e)=>{
@@ -32,7 +34,7 @@ const Sidebar=()=>{
                 alt="profile image"
                 class="w-20 h-20 rounded-full border-4 "
                 />
-                <h2 class='mt-2 font-bold'>Rushikesh</h2>
+                <h2 class='mt-2 font-bold'>{userName}</h2>
                 <span class="text-green-500 font-medium font">Task Completetd</span>
             </div>
             {/* menu */}
