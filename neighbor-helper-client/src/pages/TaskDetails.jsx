@@ -51,7 +51,6 @@ const TaskDetail = () => {
         acceptUserId: curUserId,
       });
       if (response.data.status === 200){
-       localStorage.setItem('acceptedTaskId',task._id)
         setIsAccepted(true)
         navigate('/mytask')
       }else{

@@ -19,9 +19,8 @@ const Home = ()=>{
 
         const allTasks = response.data.data;
 
-        const filteredTask = allTasks.filter((t)=>t.userId !== curUserId)
-
-        setTask(filteredTask)
+        const sortedTasks= allTasks.filter((t) => t.acceptedUserId === null && t.userId !== curUserId)
+        setTask(sortedTasks)
       }else{
         console.error('Something went wrong')
       }
@@ -43,18 +42,7 @@ const Home = ()=>{
     useEffect(()=>{
       getAllTask()
     },[])
-    // remove task from list when accepted
-    const removeTaskFromList = (id)=>{
-      setTask((prev)=> prev.filter((t)=> t._id !== id))
-    }
-      // check if any task was accepted recently
-    useEffect(()=>{
-      const acceptTaskId  = localStorage.getItem('acceptedTaskId')
-      if(acceptTaskId){
-        removeTaskFromList(acceptTaskId)
-        localStorage.removeItem('acceptedTaskId')
-      }
-    },[])
+   
 
     const handleAccept= (id)=>{    
           navigate(`/taskdetail/${id}`)        
