@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import MainLayout from "../layout/MainLayout";
 import { apiGET } from "../../utils/apiHelpers";
+import { useLocation } from "react-router-dom";
 
 // Connect socket
 const socket = io("http://localhost:3001", {
@@ -9,8 +10,12 @@ const socket = io("http://localhost:3001", {
 });
 
 const Message = () => {
+  const location = useLocation();
   const [users, setUsers] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
+  const [selectedChat, setSelectedChat] = useState(location.state ? {
+    _id:location.state.id,
+    username:location.state.name
+  }: null);
   const [msg, setMsg] = useState("");
   const [msgs, setMsgs] = useState([]);
   const messagesEndRef = useRef(null);
@@ -51,7 +56,6 @@ const Message = () => {
     async function getAllUsers() {
       try {
         const res = await apiGET("v1/auth/getalluser");
-        console.log("response--->", res.data.data); 
         if (res.data.status === 200) {
           setUsers(res.data.data.filter(u => u._id !== currentUserId)); // exclude self
         }
@@ -90,7 +94,7 @@ const Message = () => {
 
     async function fetchMessages(){
       try{
-        const response = await apiGET(`v1/messages/${currentUserId}/${selectedChat._id}`)
+        const response = await apiGET(`v1/msg/messages/${currentUserId}/${selectedChat._id}`)
         if(response.status===200){
           setMsgs(response.data.data)
         }
@@ -101,6 +105,19 @@ const Message = () => {
     fetchMessages()
    }, [selectedChat])
 
+   useEffect(()=>{
+    if(location.state &&users.length>0){
+      const foundUser = users.find(u=>u._id===location.state.id)
+      if(foundUser){
+        setSelectedChat(foundUser)
+      }else{
+        setSelectedChat({
+          _id:location.state.id,
+          username:location.state.name
+        })
+      }
+    }
+   },[location.state,users])
 
   return (
     <MainLayout>
@@ -115,7 +132,7 @@ const Message = () => {
                 setMsgs([]); // clear messages or fetch from DB if needed
               }}
               className={`p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-200 ${
-                selectedChat?.id === user.id ? "bg-gray-800 text-white" : ""
+                selectedChat?.id === user._id ? "bg-gray-800 text-white" : ""
               }`}
             >
               <p className="font-semibold">{user.username}</p>
