@@ -131,7 +131,7 @@ const Message = () => {
                 setSelectedChat(user);
                 setMsgs([]); // clear messages or fetch from DB if needed
               }}
-              className={`p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-200 ${
+              className={`p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-200  border-b-1 shadow-2xl ${
                 selectedChat?.id === user._id ? "bg-gray-800 text-white" : ""
               }`}
             >

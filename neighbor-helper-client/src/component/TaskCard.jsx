@@ -3,7 +3,7 @@ import { IoLocation } from "react-icons/io5";
 import { TbMoneybag } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 
-const TaskCard=({title,description,location,reward,date ,onAccept})=>{
+const TaskCard=({title,description,location,reward,date ,onAccept ,context="home"})=>{
     const navigate = useNavigate()
 
    
@@ -34,7 +34,7 @@ const TaskCard=({title,description,location,reward,date ,onAccept})=>{
         <button class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition "
         onClick={onAccept}
         >
-            Accept Task
+           {context==="home"? "Accept Task":"Procced Payment"}
         </button>
 
         </div>

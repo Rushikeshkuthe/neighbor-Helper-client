@@ -3,10 +3,12 @@ import Sidebar from '../component/Sidebar'
 import Navbar from '../component/Navbar'
 import TaskCard from '../component/TaskCard'
 import MainLayout from '../layout/MainLayout'
-import { apiGET } from '../../utils/apiHelpers'
+import { apiGET, apiPOST } from '../../utils/apiHelpers'
 import { useNavigate } from 'react-router-dom'
 
 const Home = ()=>{
+    const currentUser = JSON.parse(localStorage.getItem('user'))
+    const curUserId= currentUser?.id
     const navigate = useNavigate();
     const [task,setTask]=useState([])
 
@@ -14,7 +16,12 @@ const Home = ()=>{
        try{
       const response = await apiGET(`v1/task/getallTask`)
       if(response.data.status===200){
-        setTask(response.data.data)
+
+        const allTasks = response.data.data;
+
+        const filteredTask = allTasks.filter((t)=>t.userId !== curUserId)
+
+        setTask(filteredTask)
       }else{
         console.error('Something went wrong')
       }
@@ -36,10 +43,24 @@ const Home = ()=>{
     useEffect(()=>{
       getAllTask()
     },[])
-
-    const handleAccept=(id)=>{
-      navigate(`/taskdetail/${id}`)
+    // remove task from list when accepted
+    const removeTaskFromList = (id)=>{
+      setTask((prev)=> prev.filter((t)=> t._id !== id))
     }
+      // check if any task was accepted recently
+    useEffect(()=>{
+      const acceptTaskId  = localStorage.getItem('acceptedTaskId')
+      if(acceptTaskId){
+        removeTaskFromList(acceptTaskId)
+        localStorage.removeItem('acceptedTaskId')
+      }
+    },[])
+
+    const handleAccept= (id)=>{    
+          navigate(`/taskdetail/${id}`)        
+    }
+
+   
    
 
     return(
@@ -60,10 +81,9 @@ const Home = ()=>{
                     location={t.address}
                     reward={t.reward}
                     onAccept={()=>handleAccept(t._id)}
+                    context='home'
                    />
-                  ))}
-                   
-                
+                  ))}                               
                 </div>
 
             </main>

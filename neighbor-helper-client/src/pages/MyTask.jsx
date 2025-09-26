@@ -1,48 +1,38 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import MainLayout from "../layout/MainLayout";
+import { apiGET } from "../../utils/apiHelpers";
 
 const MyTask = () => {
+
+  const userDate = JSON.parse(localStorage.getItem('user'))
+  const userId = userDate?.id
+
   const [statusFilter, setStatusFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("Newest");
 
-  const tasks = [
-    {
-      title: "Fix WiFi Router",
-      name: "Rahul Sharma",
-      location: "Nagpur, India",
-      reward: "₹500",
-      status: "Pending",
-      date: "2025-02-05",
-    },
-    {
-      title: "Carpool Needed",
-      name: "Anjali Verma",
-      location: "Mumbai, India",
-      reward: "₹1500/month",
-      status: "Completed",
-      date: "2025-02-01",
-    },
-    {
-      title: "Grocery Pickup",
-      name: "Amit Singh",
-      location: "Pune, India",
-      reward: "₹200",
-      status: "Pending",
-      date: "2025-02-06",
-    },
-  ];
+  const [mytask,setMytask]= useState([])
+  async function fetchMyTask(){
+    try{
+      const response = await apiGET(`v1/task/getTaskbyAccepterId/${userId}`)
+      setMytask(response.data.data)
+      console.log("response--->",response.data.data)
+    }catch(error){
+      console.error("Error while fetching my task",error)
+    }
+  }
 
-  const filterTask = tasks
-    .filter((task) => {
-      return statusFilter === "All" ? true : task.status === statusFilter;
-    })
-    .sort((a, b) => {
-      if (dateFilter === "Newest") {
-        return new Date(b.date) - new Date(a.date);
-      } else {
-        return new Date(a.date) - new Date(b.date);
-      }
-    });
+  useEffect(()=>{
+    fetchMyTask()
+  },[])
+
+   const formattedDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, "0");      
+  const month = String(date.getMonth() + 1).padStart(2, "0"); 
+  const year = date.getFullYear();                           
+  return `${day}/${month}/${year}`;
+};
+
 
   return (
     <MainLayout>
@@ -61,8 +51,8 @@ const MyTask = () => {
           </select>
 
           <select
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            // value={dateFilter}
+            // onChange={(e) => setDateFilter(e.target.value)}
             class="border rounded-lg focus:ring focus:ring-indigo-500 p-2"
           >
             <option value="Newest">Latest Task</option>
@@ -83,18 +73,18 @@ const MyTask = () => {
               </tr>
             </thead>
             <tbody>
-                {filterTask.map((task,index)=>(
+                {mytask.map((task,index)=>(
                     <tr key={index}
                     class=" hover:bg-gray-100 transition"
                     >
                     <td class="p-3 font-medium">{task.title}</td>
-                    <td class="p-3">{task.name}</td>
-                    <td class="p-3">{task.location}</td>
+                    <td class="p-3">{task.username}</td>
+                    <td class="p-3">{task.address}</td>
                     <td class="p-3 text-green-600 font-semibold">{task.reward}</td>
                     <td class={`p-3 font-bold ${task.status==="Completed"?"text-green-600":"text-yellow-600"}`}>
                         {task.status}
                     </td>
-                    <td class="p-3">{task.date}</td>
+                    <td class="p-3">{formattedDate(task.createdAt)}</td>
                     </tr>
                 ))}
             </tbody>

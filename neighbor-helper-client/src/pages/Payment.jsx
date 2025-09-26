@@ -1,7 +1,25 @@
-import React from 'react'
+import React, { useState } from 'react'
 import MainLayout from '../layout/MainLayout'
+import { apiGET } from '../../utils/apiHelpers'
+import { useParams } from 'react-router-dom'
 
 const Payment=()=>{
+    const {id} = useParams()
+    
+    const [wallet, setWallet]=useState('')
+
+    async function getUserWallet (){
+        try{
+            const response = await apiGET(`v1/wallet/getWalletById/${userId}`)
+            if(response.data.status===200){
+                setWallet(response,data.data)
+                
+            }
+
+        }catch(error){
+            console.error("Unable to fetch user wallet",error)
+        }
+    }
 
     return(
         <MainLayout>
