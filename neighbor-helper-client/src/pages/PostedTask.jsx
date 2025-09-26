@@ -38,8 +38,13 @@ const PostedTask = () => {
     getAllTask();
   }, []);
 
-  const handleAccept=(id)=>{
-    navigate('/payment')
+  const handleAccept=(task)=>{
+      navigate(`/payment/${task._id}`, {
+    state: {
+      acceptedUserId: task.acceptedUserId,
+      reward: task.reward
+    }
+  });
   }
 
 
@@ -59,7 +64,7 @@ const PostedTask = () => {
                     description={t?.description}
                     location={t.address}
                     reward={t.reward}
-                    onAccept={()=>handleAccept(t._id)}
+                    onAccept={()=>handleAccept(t)} //pura task bhej dia
                     context="posted"
                    />
                 ))}

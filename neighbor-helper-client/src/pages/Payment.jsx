@@ -1,25 +1,35 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MainLayout from '../layout/MainLayout'
 import { apiGET } from '../../utils/apiHelpers'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 
 const Payment=()=>{
     const {id} = useParams()
+    const location = useLocation()
+    const{acceptedUserId, reward} = location.state || {}
+    const amount = reward;
+
+    console.log("Accepted User ID:", acceptedUserId);
+    console.log("Task ID:", id);
+
     
     const [wallet, setWallet]=useState('')
 
     async function getUserWallet (){
         try{
-            const response = await apiGET(`v1/wallet/getWalletById/${userId}`)
+            const response = await apiGET(`v1/wallet/getWalletById/${acceptedUserId}`)
             if(response.data.status===200){
-                setWallet(response,data.data)
-                
+                setWallet(response.data.data.wallet)
+                console.log("User Wallet Data:", response.data.data);
             }
-
         }catch(error){
-            console.error("Unable to fetch user wallet",error)
+            console.error("Error while fetching wallet",error)
         }
     }
+
+    useEffect(()=>{
+        getUserWallet()
+    },[])
 
     return(
         <MainLayout>
@@ -31,7 +41,7 @@ const Payment=()=>{
                <input 
                type="text"
                disabled
-               placeholder='45824678822'
+               placeholder={wallet?.address}
                class="font-semibold border rounded p-1"
                />
                </div>
@@ -43,7 +53,7 @@ const Payment=()=>{
                  <input 
                type="number"
                name="amount"
-               placeholder='Enter the reward amount'
+               placeholder={reward}
                class="font-semibold border rounded p-1"
                />
             

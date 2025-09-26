@@ -30,7 +30,7 @@ function App() {
         <Route path="/setting" element={<Setting/>}/>
         <Route path="/message" element={<Message/>}/>
         <Route path="/taskdetail/:id" element={<TaskDetail/>}/>
-        <Route path="/payment" element={<Payment/>}/>
+        <Route path="/payment/:id" element={<Payment/>}/>
         <Route path="/postedTask" element={<PostedTask/>}/>
       </Routes>
     </div>
