@@ -29,8 +29,12 @@ const UserWallet = () => {
           const response = await apiGET(`v1/wallet/getWalletById/${userId}`)
              console.log(response)
           if(response.status===200){
-            setWallet(response.data.data.wallet)
-            setTransaction(response.data.data.transaction)
+          const respData = response.data.data
+          const fetchWallet = respData.wallet
+          const txns = fetchWallet.transaction || fetchWallet.transaction || []
+          console.log("txns--->",fetchWallet)
+          setWallet(fetchWallet)
+          setTransaction(Array.isArray(txns)? txns: [])
             console.log(response.data.data)
           }else{
             console.error("Something went wrong")
@@ -51,6 +55,25 @@ const UserWallet = () => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+
+  const soretedTransactions = transaction
+  .slice()
+  .sort((a,b)=>{
+    const da = new Date(a.txnDate||a.date||0);
+    const db = new Date(b.txnDate||b.date||0);
+    return db - da;
+  })
+
+  const copyAddress =async()=>{
+    if(!wallet?.address) return;
+    try{
+      await navigator.clipboard.writeText(wallet.address)
+      alert("Address Copied to Clipboard")
+
+    }catch(error){
+        console.log("Failed to copy address",error)
+    }
+  }
 
   return (
     <MainLayout>
@@ -80,12 +103,12 @@ const UserWallet = () => {
             </thead>
             <tbody>
               {transaction.map((txn) => (
-                <tr key={txn._id} class=" hover:bg-gray-1000 transition">
-                  <td class="p-3">{txn.description}</td>
-                  <td class="p-3">{formattedDate(txn.txnDate)}</td>
+                <tr key={txn?._id} class=" hover:bg-gray-100 transition">
+                  <td class="p-3">{txn?.taskTitle}</td>
+                  <td class="p-3">{formattedDate(txn?.date)}</td>
                   <td
                     class={`p-3 font-semibold ${
-                      txn.status === "Credited"? "text-green-600": "text-red-600"
+                      txn.type === "credit"? "text-green-600": "text-red-600"
                     }`}
                   >
                     {txn.amount}

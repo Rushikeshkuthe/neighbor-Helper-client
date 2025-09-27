@@ -15,7 +15,7 @@ const PostedTask = () => {
       const response = await apiGET(`v1/task/getAllTask`);
       if (response.data.status === 200) {
         const allTasks = response.data.data;
-        const filteredTask = allTasks.filter((t) => t.userId === curUserId && t.status === "pending");
+        const filteredTask = allTasks.filter((t) => t.userId === curUserId && ((t.status === null)||(t.status === "pending")));
         setTask(filteredTask);
       } else {
         console.log("Something went wrong");
