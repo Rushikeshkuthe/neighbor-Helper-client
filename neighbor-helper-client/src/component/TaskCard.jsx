@@ -31,6 +31,8 @@ const TaskCard=({title,description,location,reward,date ,onAccept ,context="home
                 </div>
             </div>
 
+            
+
         <button class="mt-4 w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition "
         onClick={onAccept}
         >

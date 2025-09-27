@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import MainLayout from '../layout/MainLayout'
-import { apiGET } from '../../utils/apiHelpers'
+import { apiGET, apiPUT } from '../../utils/apiHelpers'
 import { useLocation, useParams } from 'react-router-dom'
 
 const Payment=()=>{
+    const userData = JSON.parse(localStorage.getItem('user'))
+    const requesterId = userData?.id
     const {id} = useParams()
     const location = useLocation()
     const{acceptedUserId, reward} = location.state || {}
     const amount = reward;
+    const [msg,setMsg]=useState('')
+    const [loading,setLoading]=useState(false)
 
     console.log("Accepted User ID:", acceptedUserId);
     console.log("Task ID:", id);
@@ -21,9 +25,47 @@ const Payment=()=>{
             if(response.data.status===200){
                 setWallet(response.data.data.wallet)
                 console.log("User Wallet Data:", response.data.data);
+                
             }
         }catch(error){
             console.error("Error while fetching wallet",error)
+        }
+    }
+
+    async function handlepayment(){
+        try{
+               setLoading(true)  
+            const response = await apiPUT(`v1/wallet/makePayment`,{
+                taskId:id,
+                acceptedUserId:acceptedUserId,
+                requestedUserId:requesterId,
+                amount:amount
+            })
+
+            if(response.data.status===200){
+                setMsg(response.data.message)
+                console.log(response.data.message)
+
+                try{
+                    const taskUpdate = await apiPUT(`v1/task/acceptedTask/${id}`,{
+                          acceptUserId: acceptedUserId,
+                          status: "completed"
+                    })
+                        console.log(taskUpdate.data.data)
+                    if(taskUpdate.data.status===200){
+                        console.log("Task status updated to Completed");
+                        setMsg("Task marked as Completed.")
+                    
+                    }
+
+                }catch(error){
+                    console.error("Error Updating Task data",error)
+                }
+            }else{
+                setMsg("Payment failed. Please try again.")
+            }
+        }catch(error){
+            console.error("Error while processing payment",error)
         }
     }
 
@@ -41,7 +83,7 @@ const Payment=()=>{
                <input 
                type="text"
                disabled
-               placeholder={wallet?.address}
+               placeholder={wallet?.address || ""}
                class="font-semibold border rounded p-1"
                />
                </div>
@@ -54,14 +96,20 @@ const Payment=()=>{
                type="number"
                name="amount"
                placeholder={reward}
+               value={reward}
+               disabled
                class="font-semibold border rounded p-1"
-               />
-            
-            </div>
-                
+               />   
+            </div>      
                 <div class="flex justify-center rounded-2xl mt-3 ">
-                    <button class="bg-green-500 text-white p-2 rounded-2xl shadow-2xl hover:bg-green-700">Procced Payment</button>
+                    <button class="bg-green-500 text-white p-2 rounded-2xl shadow-2xl hover:bg-green-700"
+                    onClick={handlepayment}
+                    disabled={loading}
+                    >{loading?"Payment ✔️":"Proceed Payment"}</button>
                 </div>
+                {msg &&(
+                    <p class="text-center mt-4 font-semibold text-indigo-800">{msg}</p>
+                )}
            </div>
         </MainLayout>
     )

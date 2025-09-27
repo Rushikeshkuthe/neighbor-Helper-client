@@ -15,7 +15,7 @@ const PostedTask = () => {
       const response = await apiGET(`v1/task/getAllTask`);
       if (response.data.status === 200) {
         const allTasks = response.data.data;
-        const filteredTask = allTasks.filter((t) => t.userId === curUserId);
+        const filteredTask = allTasks.filter((t) => t.userId === curUserId && t.status === "pending");
         setTask(filteredTask);
       } else {
         console.log("Something went wrong");
@@ -24,6 +24,8 @@ const PostedTask = () => {
       console.error("Unable to fetch task", error);
     }
   }
+
+
 
 
   const formattedDate = (dateString) => {
@@ -64,7 +66,14 @@ const PostedTask = () => {
                     description={t?.description}
                     location={t.address}
                     reward={t.reward}
-                    onAccept={()=>handleAccept(t)} //pura task bhej dia
+                    onAccept={()=>{
+                      if(!t.acceptedUserId){
+                        alert("No user has accepted your task yet.")
+                        return;
+                      }else{
+                           handleAccept(t)
+                      }
+                     } }
                     context="posted"
                    />
                 ))}

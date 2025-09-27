@@ -81,7 +81,7 @@ const MyTask = () => {
                     <td class="p-3">{task.username}</td>
                     <td class="p-3">{task.address}</td>
                     <td class="p-3 text-green-600 font-semibold">{task.reward}</td>
-                    <td class={`p-3 font-bold ${task.status==="Completed"?"text-green-600":"text-yellow-600"}`}>
+                    <td class={`p-3 font-bold ${task.status==="completed"?"text-green-600":"text-yellow-600"}`}>
                         {task.status}
                     </td>
                     <td class="p-3">{formattedDate(task.createdAt)}</td>

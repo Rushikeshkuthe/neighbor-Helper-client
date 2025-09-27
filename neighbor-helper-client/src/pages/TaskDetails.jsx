@@ -49,6 +49,7 @@ const TaskDetail = () => {
     try {
       const response = await apiPUT(`v1/task/acceptedTask/${task._id}`, {
         acceptUserId: curUserId,
+        
       });
       if (response.data.status === 200){
         setIsAccepted(true)

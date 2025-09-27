@@ -20,8 +20,8 @@ const Navbar=()=>{
             {/* right side */}
             <div class='flex items-center gap-6 '>
                 <nav class="hidden md:flex gap-6 font-medium text-gray-700">
-                <a href="/createtask" class="text-blue-400 rounded-2xl border p-2 hover:border-b-4 hover:border-b-blue-600">Create Task</a>
-                <a href="/postedTask" class="text-blue-400 rounded-2xl border p-2 hover:border-b-4 hover:border-b-blue-600">Posted Task</a>
+                <a href="/createtask" class="text-blue-400 rounded-2xl border p-2  hover:bg-blue-500 hover:text-white">Create Task</a>
+                <a href="/postedTask" class="text-blue-400 rounded-2xl border p-2  hover:bg-blue-500 hover:text-white">Posted Task</a>
                 </nav>
                 <BiBell class="text-gray-600"/>
             </div>

@@ -22,6 +22,8 @@ const UserWallet = () => {
       if(!userId)
         return
 
+    
+
       async function fetchWallet (){
         try{
           const response = await apiGET(`v1/wallet/getWalletById/${userId}`)
@@ -41,6 +43,14 @@ const UserWallet = () => {
       }
       fetchWallet();
     },[userId])
+
+      const formattedDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <MainLayout>
@@ -72,7 +82,7 @@ const UserWallet = () => {
               {transaction.map((txn) => (
                 <tr key={txn._id} class=" hover:bg-gray-1000 transition">
                   <td class="p-3">{txn.description}</td>
-                  <td class="p-3">{new Date(txn.txnDate).toLocaleDateString()}</td>
+                  <td class="p-3">{formattedDate(txn.txnDate)}</td>
                   <td
                     class={`p-3 font-semibold ${
                       txn.status === "Credited"? "text-green-600": "text-red-600"
