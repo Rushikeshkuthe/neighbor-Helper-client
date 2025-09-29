@@ -1,7 +1,7 @@
 import axios from "axios";
 
-// const API_URl = "http://localhost:3001"
-const API_URl=" https://neighbor-helper-server.onrender.com"
+const API_URl = "http://localhost:3001"
+// const API_URl=" https://neighbor-helper-server.onrender.com"
 const axiosApi = axios.create({
     baseURL:API_URl
 })
