@@ -47,7 +47,7 @@ const Sidebar = () => {
       {/* Logo */}
       <div className="flex items-center gap-2 m-5">
         <img src={logo} alt="logo" className="w-8 h-8" />
-        <h1 className="text-2xl font-bold">NH</h1>
+        <h1 className="text-2xl font-bold text-indigo-600">NEIGHBOR HELPER</h1>
       </div>
 
       {/* Profile */}

@@ -114,8 +114,6 @@ const Navbar = () => {
           </motion.a>
         </nav>
 
-        {/* Bell & Dropdown */}
-        
       </div>
     </motion.header>
   );
