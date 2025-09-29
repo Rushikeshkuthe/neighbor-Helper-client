@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState, useRef } from "react";
 import { BiBell } from "react-icons/bi";
 import { motion } from "framer-motion";
