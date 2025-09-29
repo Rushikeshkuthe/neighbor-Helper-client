@@ -1,3 +1,204 @@
+// import React, { useEffect, useState, useRef } from "react";
+// import { io } from "socket.io-client";
+// import MainLayout from "../layout/MainLayout";
+// import { apiGET } from "../../utils/apiHelpers";
+// import { useLocation } from "react-router-dom";
+
+// // Connect socket
+// const socket = io("http://localhost:3001", {
+//   transports: ["websocket"],
+// });
+
+// const Message = () => {
+//   const location = useLocation();
+//   const [users, setUsers] = useState([]);
+//   const [selectedChat, setSelectedChat] = useState(location.state ? {
+//     _id:location.state.id,
+//     username:location.state.name
+//   }: null);
+//   const [msg, setMsg] = useState("");
+//   const [msgs, setMsgs] = useState([]);
+//   const messagesEndRef = useRef(null);
+
+//   const userData = JSON.parse(localStorage.getItem('user'))
+//   const currentUserId = userData?.id; // Replace with actual logged-in user ID
+
+//   console.log("Current User ID:", currentUserId);
+
+//   // Register user with socket on connect
+//   useEffect(() => {
+//     socket.on("connect", () => {
+//       console.log("Connected with ID:", socket.id);
+//       socket.emit("register_user", currentUserId);
+//     });
+
+//     // Listen for incoming messages
+//     socket.on("receive_message", (data) => {
+//       console.log("Message received:", data);
+//       // Only add messages if they involve this user
+//       if (data.senderId === selectedChat?._id || data.receiverId === currentUserId) {
+//         setMsgs((prev) => [...prev, data]);
+//       }
+//       console.log(data)
+//     });
+
+//     socket.on("welcome", (msg) => {
+//       console.log(msg);
+//     });
+
+//     return () => {
+//       socket.off("receive_message");
+//     };
+//   }, [selectedChat]);
+
+//   // Fetch all users
+//   useEffect(() => {
+//     async function getAllUsers() {
+//       try {
+//         const res = await apiGET("v1/auth/getalluser");
+//         if (res.data.status === 200) {
+//           setUsers(res.data.data.filter(u => u._id !== currentUserId)); // exclude self
+//         }
+//       } catch (error) {
+//         console.error("Failed to get users", error);
+//       }
+//     }
+//     getAllUsers();
+//   }, []);
+
+
+//   // Auto-scroll to bottom when messages change
+//   useEffect(() => {
+//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//   }, [msgs]);
+
+//   // Send message to selected user
+//   const handleSend = () => {
+//     if (!msg.trim() || !selectedChat) return;
+
+//     const msgData = {
+//       sender: currentUserId,
+//       senderId: currentUserId,
+//       to: selectedChat?._id,
+//       text: msg,
+//       createdAt: new Date(),
+//     };
+
+//     socket.emit("send_message", msgData);
+//     setMsgs((prev) => [...prev, msgData]);
+//     setMsg("");
+//   };
+
+//    useEffect(() => {
+//     if(!selectedChat) return
+
+//     async function fetchMessages(){
+//       try{
+//         const response = await apiGET(`v1/msg/messages/${currentUserId}/${selectedChat._id}`)
+//         if(response.status===200){
+//           setMsgs(response.data.data)
+//         }
+//       }catch(error){
+//         console.error("Error while fetching messages",error)
+//       }
+//     }
+//     fetchMessages()
+//    }, [selectedChat])
+
+//    useEffect(()=>{
+//     if(location.state &&users.length>0){
+//       const foundUser = users.find(u=>u._id===location.state.id)
+//       if(foundUser){
+//         setSelectedChat(foundUser)
+//       }else{
+//         setSelectedChat({
+//           _id:location.state.id,
+//           username:location.state.name
+//         })
+//       }
+//     }
+//    },[location.state,users])
+
+//   return (
+//     <MainLayout>
+//       <div className="p-6 bg-gray-300 rounded-3xl h-[600px] flex gap-4">
+//         {/* Chat List */}
+//         <div className="w-1/3 border-r border-gray-700 p-2 overflow-y-auto">
+//           {users.map((user) => (
+//             <div
+//               key={user._id}
+//               onClick={() => {
+//                 setSelectedChat(user);
+//                 setMsgs([]); // clear messages or fetch from DB if needed
+//               }}
+//               className={`p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-200  border-b-1 shadow-2xl ${
+//                 selectedChat?.id === user._id ? "bg-gray-800 text-white" : ""
+//               }`}
+//             >
+//               <p className="font-semibold">{user.username}</p>
+//               <p className="text-sm text-gray-500">{user.lastMessage}</p>
+//               <p className="text-xs text-gray-500">{user.time}</p>
+//             </div>
+//           ))}
+//         </div>
+
+//         {/* Chat Window */}
+//         <div className="flex-1 flex flex-col">
+//           {selectedChat ? (
+//             <>
+//               {/* Chat Header */}
+//               <div className="p-4 border-b border-gray-700 font-bold">
+//                 {selectedChat.username}
+//               </div>
+
+//               {/* Messages Inbox */}
+//               <div className="flex-1 p-4 overflow-y-auto space-y-3">
+//                 {msgs.map((msgItem, index) => (
+//                   <div
+//                     key={index}
+//                     className={`p-2 rounded-lg max-w-xs break-words ${
+//                       msgItem.senderId === currentUserId
+//                         ? "bg-indigo-600 ml-auto text-white"
+//                         : "bg-gray-700 mr-auto text-left text-white"
+//                     }`}
+//                   >
+//                     {msgItem.text}
+//                   </div>
+//                 ))}
+//                 <div ref={messagesEndRef} />
+//               </div>
+
+//               {/* Input Box */}
+//               <div className="p-4 border-t border-gray-700 bg-gray-200 flex gap-2">
+//                 <input
+//                   type="text"
+//                   value={msg}
+//                   onChange={(e) => setMsg(e.target.value)}
+//                   placeholder="Type your message"
+//                   className="flex-1 p-3 rounded-lg bg-gray-800 text-white border border-gray-700"
+//                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
+//                 />
+//                 <button
+//                   onClick={handleSend}
+//                   className="px-4 py-2 bg-indigo-800 rounded-lg hover:bg-indigo-500 text-white"
+//                 >
+//                   Send
+//                 </button>
+//               </div>
+//             </>
+//           ) : (
+//             <div className="flex flex-1 items-center justify-center text-gray-400">
+//               Select a chat to start messaging
+//             </div>
+//           )}
+//         </div>
+//       </div>
+//     </MainLayout>
+//   );
+// };
+
+// export default Message;
+
 import React, { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import MainLayout from "../layout/MainLayout";
@@ -5,45 +206,33 @@ import { apiGET } from "../../utils/apiHelpers";
 import { useLocation } from "react-router-dom";
 
 // Connect socket
-const socket = io("http://localhost:3001", {
-  transports: ["websocket"],
-});
+const socket = io("http://localhost:3001", { transports: ["websocket"] });
 
 const Message = () => {
   const location = useLocation();
   const [users, setUsers] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(location.state ? {
-    _id:location.state.id,
-    username:location.state.name
-  }: null);
+  const [selectedChat, setSelectedChat] = useState(
+    location.state
+      ? { _id: location.state.id, username: location.state.name }
+      : null
+  );
   const [msg, setMsg] = useState("");
   const [msgs, setMsgs] = useState([]);
   const messagesEndRef = useRef(null);
 
-  const userData = JSON.parse(localStorage.getItem('user'))
-  const currentUserId = userData?.id; // Replace with actual logged-in user ID
+  const userData = JSON.parse(localStorage.getItem("user"));
+  const currentUserId = userData?.id;
 
-  console.log("Current User ID:", currentUserId);
-
-  // Register user with socket on connect
+  // Register user with socket
   useEffect(() => {
     socket.on("connect", () => {
-      console.log("Connected with ID:", socket.id);
       socket.emit("register_user", currentUserId);
     });
 
-    // Listen for incoming messages
     socket.on("receive_message", (data) => {
-      console.log("Message received:", data);
-      // Only add messages if they involve this user
       if (data.senderId === selectedChat?._id || data.receiverId === currentUserId) {
         setMsgs((prev) => [...prev, data]);
       }
-      console.log(data)
-    });
-
-    socket.on("welcome", (msg) => {
-      console.log(msg);
     });
 
     return () => {
@@ -57,29 +246,56 @@ const Message = () => {
       try {
         const res = await apiGET("v1/auth/getalluser");
         if (res.data.status === 200) {
-          setUsers(res.data.data.filter(u => u._id !== currentUserId)); // exclude self
+          setUsers(res.data.data.filter((u) => u._id !== currentUserId));
         }
       } catch (error) {
-        console.error("Failed to get users", error);
+        console.error(error);
       }
     }
     getAllUsers();
   }, []);
-
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [msgs]);
 
-  // Send message to selected user
+  // Fetch chat history
+  useEffect(() => {
+    if (!selectedChat) return;
+
+    async function fetchMessages() {
+      try {
+        const response = await apiGET(
+          `v1/msg/messages/${currentUserId}/${selectedChat._id}`
+        );
+        if (response.status === 200) {
+          setMsgs(response.data.data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchMessages();
+  }, [selectedChat]);
+
+  // Set selected chat from location state
+  useEffect(() => {
+    if (location.state && users.length > 0) {
+      const foundUser = users.find((u) => u._id === location.state.id);
+      setSelectedChat(
+        foundUser || { _id: location.state.id, username: location.state.name }
+      );
+    }
+  }, [location.state, users]);
+
   const handleSend = () => {
     if (!msg.trim() || !selectedChat) return;
 
     const msgData = {
       sender: currentUserId,
       senderId: currentUserId,
-      to: selectedChat?._id,
+      to: selectedChat._id,
       text: msg,
       createdAt: new Date(),
     };
@@ -89,108 +305,78 @@ const Message = () => {
     setMsg("");
   };
 
-   useEffect(() => {
-    if(!selectedChat) return
-
-    async function fetchMessages(){
-      try{
-        const response = await apiGET(`v1/msg/messages/${currentUserId}/${selectedChat._id}`)
-        if(response.status===200){
-          setMsgs(response.data.data)
-        }
-      }catch(error){
-        console.error("Error while fetching messages",error)
-      }
-    }
-    fetchMessages()
-   }, [selectedChat])
-
-   useEffect(()=>{
-    if(location.state &&users.length>0){
-      const foundUser = users.find(u=>u._id===location.state.id)
-      if(foundUser){
-        setSelectedChat(foundUser)
-      }else{
-        setSelectedChat({
-          _id:location.state.id,
-          username:location.state.name
-        })
-      }
-    }
-   },[location.state,users])
-
   return (
     <MainLayout>
-      <div className="p-6 bg-gray-300 rounded-3xl h-[600px] flex gap-4">
-        {/* Chat List */}
-        <div className="w-1/3 border-r border-gray-700 p-2 overflow-y-auto">
-          {users.map((user) => (
-            <div
-              key={user._id}
-              onClick={() => {
-                setSelectedChat(user);
-                setMsgs([]); // clear messages or fetch from DB if needed
-              }}
-              className={`p-3 mb-2 rounded-lg cursor-pointer hover:bg-gray-200  border-b-1 shadow-2xl ${
-                selectedChat?.id === user._id ? "bg-gray-800 text-white" : ""
-              }`}
-            >
-              <p className="font-semibold">{user.username}</p>
-              <p className="text-sm text-gray-500">{user.lastMessage}</p>
-              <p className="text-xs text-gray-500">{user.time}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Chat Window */}
-        <div className="flex-1 flex flex-col">
-          {selectedChat ? (
-            <>
-              {/* Chat Header */}
-              <div className="p-4 border-b border-gray-700 font-bold">
-                {selectedChat.username}
+      <div className="min-h-full p-6 bg-gradient-to-r from-indigo-900 via-purple-900 to-indigo-800 flex justify-center">
+        <div className="bg-gray-100 rounded-3xl w-full max-w-6xl flex shadow-2xl h-[600px]">
+          {/* User List */}
+          <div className="w-1/3 border-r border-gray-300 p-2 overflow-y-auto bg-white rounded-l-3xl">
+            {users.map((user) => (
+              <div
+                key={user._id}
+                onClick={() => {
+                  setSelectedChat(user);
+                  setMsgs([]);
+                }}
+                className={`p-3 mb-2 rounded-lg cursor-pointer transition hover:bg-indigo-100 ${
+                  selectedChat?._id === user._id ? "bg-indigo-200 font-semibold" : ""
+                }`}
+              >
+                <p>{user.username}</p>
               </div>
+            ))}
+          </div>
 
-              {/* Messages Inbox */}
-              <div className="flex-1 p-4 overflow-y-auto space-y-3">
-                {msgs.map((msgItem, index) => (
-                  <div
-                    key={index}
-                    className={`p-2 rounded-lg max-w-xs break-words ${
-                      msgItem.senderId === currentUserId
-                        ? "bg-indigo-600 ml-auto text-white"
-                        : "bg-gray-700 mr-auto text-left text-white"
-                    }`}
+          {/* Chat Window */}
+          <div className="flex-1 flex flex-col rounded-r-3xl overflow-hidden">
+            {selectedChat ? (
+              <>
+                {/* Chat Header */}
+                <div className="bg-gray-900 text-white p-4 font-bold">
+                  {selectedChat.username}
+                </div>
+
+                {/* Messages */}
+                <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-2">
+                  {msgs.map((msgItem, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-2 rounded-xl max-w-xs break-words ${
+                        msgItem.senderId === currentUserId
+                          ? "bg-indigo-600 text-white ml-auto"
+                          : "bg-gray-700 text-white mr-auto"
+                      }`}
+                    >
+                      {msgItem.text}
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Input */}
+                <div className="flex p-4 border-t border-gray-300 bg-white gap-2">
+                  <input
+                    type="text"
+                    value={msg}
+                    onChange={(e) => setMsg(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                    placeholder="Type your message..."
+                    className="flex-1 p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                  <button
+                    onClick={handleSend}
+                    className="bg-indigo-800 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl transition"
                   >
-                    {msgItem.text}
-                  </div>
-                ))}
-                <div ref={messagesEndRef} />
+                    Send
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center text-gray-400">
+                Select a chat to start messaging
               </div>
-
-              {/* Input Box */}
-              <div className="p-4 border-t border-gray-700 bg-gray-200 flex gap-2">
-                <input
-                  type="text"
-                  value={msg}
-                  onChange={(e) => setMsg(e.target.value)}
-                  placeholder="Type your message"
-                  className="flex-1 p-3 rounded-lg bg-gray-800 text-white border border-gray-700"
-                  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                />
-                <button
-                  onClick={handleSend}
-                  className="px-4 py-2 bg-indigo-800 rounded-lg hover:bg-indigo-500 text-white"
-                >
-                  Send
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-1 items-center justify-center text-gray-400">
-              Select a chat to start messaging
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </MainLayout>
@@ -198,3 +384,4 @@ const Message = () => {
 };
 
 export default Message;
+

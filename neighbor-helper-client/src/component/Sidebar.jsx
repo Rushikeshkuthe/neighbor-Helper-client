@@ -1,64 +1,91 @@
-import React from 'react'
-import logo from "../assets/logo.svg"
-import { BiArrowFromRight, BiTask } from 'react-icons/bi'
-import { FaHome } from 'react-icons/fa'
-import { IoWalletOutline,IoSettingsOutline } from 'react-icons/io5'
 
-import { RiMessageLine } from 'react-icons/ri'
-import { useNavigate } from 'react-router-dom'
+import React from 'react';
+import logo from "../assets/logo.svg";
+import { BiTask } from 'react-icons/bi';
+import { FaHome } from 'react-icons/fa';
+import { IoWalletOutline, IoSettingsOutline } from 'react-icons/io5';
+import { RiMessageLine } from 'react-icons/ri';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
+const menuItems = [
+  { label: 'Home', icon: <FaHome size={18} />, path: '/home' },
+  { label: 'My Task', icon: <BiTask size={18} />, path: '/mytask' },
+  { label: 'Message', icon: <RiMessageLine size={18} />, path: '/message' },
+  { label: 'Wallet', icon: <IoWalletOutline size={18} />, path: '/userwallet' },
+  { label: 'Settings', icon: <IoSettingsOutline size={18} />, path: '/setting' }
+];
 
+const Sidebar = () => {
+  const userdata = JSON.parse(localStorage.getItem('user'));
+  const userName = userdata?.username || "User";
+  const navigate = useNavigate();
 
-
-const Sidebar=()=>{
-
-  const userdata = JSON.parse(localStorage.getItem('user'))
-const userName = userdata?.username || "User"
-    const navigate = useNavigate();
-
- const handleLogout =(e)=>{
+  const handleLogout = () => {
     localStorage.clear();
-    navigate('/login')
- }
+    navigate('/login');
+  };
 
-    return(
-        <aside class="fixed top-0 left-0 h-screen w-60 bg-gray-900 text-white flex flex-col">
-            <div class="flex items-center gap-2 flex-row m-5">
-                        <img src={logo} alt="logo" class="w-8 h-8" />
-                        <h1 class="text-2xl font-bold">NH</h1>
-                        </div>
-            {/* profile */}
-            <div class="p-6 flex flex-col items-center justify-center border-b border-gray-700">
-                <img
-                src=""
-                alt="profile image"
-                class="w-20 h-20 rounded-full border-4 "
-                />
-                <h2 class='mt-2 font-bold'>{userName}</h2>
-                <span class="text-green-500 font-medium font">Task Completetd</span>
-            </div>
-            {/* menu */}
-            <nav class="flex-1 mt-6 space-y-2 px-4">
-                <a href='/home' class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700">
-                <FaHome size={18} /> Home
-                </a>
-                <a href='/mytask' class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700">
-                <BiTask size={18}/>My Task
-                </a>
-                <a href='/message' class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700">
-                <RiMessageLine size={18}/>Message
-                </a>
-                <a href='/userwallet' class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700">
-                <IoWalletOutline size={18}/>Wallet
-                </a>
-                 <a href='/setting' class="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-700">
-                <IoSettingsOutline size={18}/>Settings
-                </a>
-            </nav>
-            <div class="m-5">
-                <button onClick={()=>handleLogout()} class="w-full rounded-2xl bg-indigo-700 p-3 hover:bg-white hover:text-gray-500 transition ">Logout</button>
-            </div>
-        </aside>
-    )
-}
-export default Sidebar
+
+  const menuItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (i) => ({
+      opacity: 1,
+      x: 0,
+      transition: { delay: i * 0.1, duration: 0.3 }
+    }),
+    hover: { scale: 1.05, backgroundColor: 'rgba(255,255,255,0.1)' },
+  };
+
+  return (
+    <motion.aside
+      className="fixed top-0 left-0 h-screen w-60 bg-gray-900 text-white flex flex-col"
+      initial="hidden"
+      animate="visible"
+      
+    >
+      {/* Logo */}
+      <div className="flex items-center gap-2 m-5">
+        <img src={logo} alt="logo" className="w-8 h-8" />
+        <h1 className="text-2xl font-bold">NH</h1>
+      </div>
+
+      {/* Profile */}
+      <div className="p-6 flex flex-col items-center justify-center border-b border-gray-700">
+        <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-center">Hello {userName}</h2>
+      </div>
+
+      {/* Menu */}
+      <nav className="flex-1 mt-6 px-4 space-y-2">
+        {menuItems.map((item, index) => (
+          <motion.a
+            key={item.path}
+            href={item.path}
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            variants={menuItemVariants}
+            whileHover="hover"
+            className="flex items-center gap-2 p-2 rounded-lg cursor-pointer"
+          >
+            {item.icon} {item.label}
+          </motion.a>
+        ))}
+      </nav>
+
+      {/* Logout */}
+      <motion.div className="m-5">
+        <motion.button
+          onClick={handleLogout}
+          whileHover={{ scale: 1.05, backgroundColor: '#fff', color: '#4b5563' }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full rounded-2xl bg-indigo-700 p-3 transition-colors text-white font-semibold"
+        >
+          Logout
+        </motion.button>
+      </motion.div>
+    </motion.aside>
+  );
+};
+
+export default Sidebar;
